@@ -14,29 +14,28 @@
  * }
  */
 class Solution {
+    int total = 0;
     public int pathSum(TreeNode root, int targetSum) {
-        List<Long> path = new ArrayList<>();
-        return helper(root, targetSum, path);
+        findBase(root, targetSum);
+        return total;
     }
-
-    int helper(TreeNode node, int targetSum, List<Long> path) {
-        if(node == null) return 0;
-
-        path.add((long) node.val);
-        long sum = 0;
-        int count = 0;
-
-        ListIterator<Long> itr = path.listIterator(path.size());
-        while(itr.hasPrevious()) {
-            sum += itr.previous();
-            if(sum == targetSum) count++;
+    private void findBase(TreeNode root, int target){
+        if(root == null){
+            return;
         }
-
-        count += helper(node.left, targetSum, path);
-        count += helper(node.right, targetSum, path);
-
-         path.remove(path.size() - 1); // Backtrack
-
-        return count;
+        find(root, target, 0L);
+        findBase(root.left, target);
+        findBase(root.right, target);
+    }
+    private void find(TreeNode root, int target, long curr){
+        if(root == null){
+            return;
+        }
+        curr += root.val;
+        if(curr == target){
+            total++;
+        }
+        find(root.left, target, curr);
+        find(root.right, target, curr);
     }
 }
