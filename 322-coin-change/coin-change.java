@@ -1,25 +1,25 @@
 class Solution {
     public int coinChange(int[] coins, int amount) {
         int n = coins.length;
-        int INF = (int)1e9; // large number
-        int dp[][] = new int[n+1][amount+1];
+        int[][] dp = new int[n + 1][amount + 1];
 
-        // base cases
-        for (int j = 0; j <= amount; j++) {
-            dp[0][j] = INF;   // with 0 coins, can't form any positive amount
+        for (int i = 1; i <= amount; i++) {
+            dp[0][i] = Integer.MAX_VALUE;
         }
-        dp[0][0] = 0; // 0 coins needed to form amount 0
 
-        for (int i = 1; i <= n; i++) {
-            for (int j = 0; j <= amount; j++) {
-                if (coins[i-1] <= j) {
-                    dp[i][j] = Math.min(dp[i-1][j], 1 + dp[i][j - coins[i-1]]);
-                } else {
-                    dp[i][j] = dp[i-1][j];
+        for (int idx = 1; idx <= n; idx++) {
+            for (int amt = 1; amt <= amount; amt++) {
+                int noPick = dp[idx - 1][amt];
+                int pick = Integer.MAX_VALUE;
+                if (amt >= coins[idx - 1]) {
+                    int res = dp[idx][amt - coins[idx - 1]];
+                    if (res != Integer.MAX_VALUE) {
+                        pick = 1 + res;
+                    }
                 }
+                dp[idx][amt] = Math.min(pick, noPick);
             }
         }
-
-        return dp[n][amount] >= INF ? -1 : dp[n][amount];
+        return dp[n][amount] == Integer.MAX_VALUE ? -1 : dp[n][amount];
     }
 }
