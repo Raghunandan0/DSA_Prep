@@ -38,12 +38,12 @@
 //Using Tabulation
 class Solution {
     public int longestCommonSubsequence(String text1, String text2) {
-        int length1 = text1.length();
-        int length2 = text2.length();
-        int[][] dp = new int[length1 + 1][length2 + 1];
+        int n = text1.length();
+        int m = text2.length();
+        int dp[][] = new int[n + 1][m + 1];
 
-        for (int i = 1; i <= length1; ++i) {
-            for (int j = 1; j <= length2; ++j) {
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= m; ++j) {
                 if (text1.charAt(i - 1) == text2.charAt(j - 1)) {
                     dp[i][j] = dp[i - 1][j - 1] + 1;
                 } else {
@@ -51,6 +51,6 @@ class Solution {
                 }
             }
         }
-        return dp[length1][length2];
+        return dp[n][m];
     }
 }
