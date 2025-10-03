@@ -1,30 +1,33 @@
 class Solution {
     public int splitArray(int[] nums, int k) {
-
-// setting start s=max and end e=sum 
-        int s=-1, e=0, m;
-        for(int x: nums){
-            if(x>s) s=x;
-            e+=x;
-        }
-
-        while(s<e){
-            m=(s+e)/2;
-// checcking for possible subarray and counting no of pieces p.
-            int ar=0,p=1;
-            for(int x: nums){
-                ar+=x;
-                if(ar>m){
-                    ar=x;
-                    p++;
-                }
-            }
-// if piece p is more than allowed, size should be increased
-// if piece is less or equal, then trying to reduce size
-            if(p>k) s=m+1;
-            else e=m;
-        }
-         return s;
         
+        int high = 0, low = 0;
+        for(int num: nums) {
+            low = Math.max(low, num);
+            high += num;
+        }
+
+        while(high > low) {
+            int mid = low + (high - low) / 2;
+            if(check(nums, mid, k)) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+        return low;
+    }
+
+    private boolean check(int[] nums, int target, int m) {
+        int sum = 0;
+        int numberOfSubarray = 1;
+        for(int num: nums) {
+            sum += num;
+            if(sum > target) {
+                numberOfSubarray++;
+                sum = num;
+            }
+        }
+        return numberOfSubarray <= m;
     }
 }
