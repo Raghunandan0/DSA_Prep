@@ -1,36 +1,24 @@
 class Solution {
-    public static List<String> restoreIpAddresses(String s) {
-        // Initialize the list to hold all valid IP addresses
-        List<String> addresses = new ArrayList<>();
-        // Initialize the list to hold the current IP address being built
-        List<String> address = new ArrayList<>();
-        // Call the recursive helper function to generate all possible IP addresses
-        rec(s, 0, address, addresses);
-        // Return the list of all valid IP addresses
-        return addresses;
-    }
-    private static void rec(String s, int i, List<String> address, List<String> addresses) {
-        // If the current address has 4 segments, check if we have reached the end of the input string
-        if (address.size() == 4) {
-            if (i == s.length()) {
-                // If we have reached the end of the input string, add the current address to the list of valid addresses
-                addresses.add(String.join(".", address));
-            }
-        } else {
-            // Try all possible next segments for the current address
-            for (int j = i + 1; j <= i + 3 && j <= s.length(); j++) {
-                String nextInt = s.substring(i, j);
-                // Check if the next segment is valid (between 0 and 255, and not starting with 0 unless it is 0)
-                if (Integer.parseInt(nextInt) <= 255 && (nextInt.equals("0") || !nextInt.startsWith("0"))) {
-                    // Add the next segment to the current address
-                    address.add(nextInt);
-                    // Recursively call the function to generate the next segment
-                    rec(s, j, address, addresses);
-                    // Remove the last segment from the current address
-                    address.remove(address.size() - 1);
-                }
+    List<String> ans = new ArrayList<>();
+    String str;
+    public List<String> restoreIpAddresses(String s) {
+        str = s;
+        magical("", 0, 0);
+        return ans;
+    } 
+
+    void magical( String path, int index, int dots) {
+        if (dots > 4) return;
+        if (dots == 4 && index >= str.length()) {
+            ans.add(path.substring(0,path.length()-1));
+            return;
+        }
+        for (int length = 1; length <= 3 && index + length <= str.length(); length++) {
+            String num = str.substring(index, index + length);
+            if (num.charAt(0) == '0' && length != 1) break;
+            else if (Integer.parseInt(num) <= 255) {
+                magical( path + str.substring(index, index + length) + ".", index + length,dots + 1);
             }
         }
     }
 }
-
