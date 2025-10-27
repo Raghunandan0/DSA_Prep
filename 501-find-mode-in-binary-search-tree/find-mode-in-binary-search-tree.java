@@ -14,42 +14,48 @@
  * }
  */
 class Solution {
+    private int currentVal;
+    private int currentCount = 0;
+    private int maxCount = 0;
+    private int modeCount = 0;
+    private int[] modes;
     public int[] findMode(TreeNode root) {
-       if (root == null) return new int[0]; // empty tree case
-        
-        // Special case: only one node in the tree
-        if (root.left == null && root.right == null) {
-            return new int[]{root.val};
+        inOrderTraversal(root);
+
+        modes = new int[modeCount];
+        modeCount = 0;
+        currentCount = 0;
+
+        inOrderTraversal(root);
+
+        return modes;
+    }
+    private void inOrderTraversal(TreeNode node) {
+        if (node == null) return;
+
+        inOrderTraversal(node.left);
+
+        handleValue(node.val);
+
+        inOrderTraversal(node.right);
+    }
+
+    private void handleValue(int val) {
+        if (val == currentVal) {
+            currentCount++;
+        } else {
+            currentVal = val;
+            currentCount = 1;
         }
 
-        Map<Integer, Integer> map = new HashMap<>();
-        Queue<TreeNode> queue = new LinkedList<>();
-        queue.add(root);
-
-        // BFS to count frequencies
-        while (!queue.isEmpty()) {
-            TreeNode curr = queue.poll();
-            map.put(curr.val, map.getOrDefault(curr.val, 0) + 1);
-
-            if (curr.left != null) queue.add(curr.left);
-            if (curr.right != null) queue.add(curr.right);
-        }
-
-        // Find max frequency
-        int maxFreq = 0;
-        for (int freq : map.values()) {
-            if (freq > maxFreq) maxFreq = freq;
-        }
-
-        // Collect all keys with max frequency
-        List<Integer> result = new ArrayList<>();
-        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
-            if (entry.getValue() == maxFreq) {
-                result.add(entry.getKey());
+        if (currentCount > maxCount) {
+            maxCount = currentCount;
+            modeCount = 1;
+        } else if (currentCount == maxCount) {
+            if (modes != null) {
+                modes[modeCount] = currentVal;
             }
+            modeCount++;
         }
-
-        // Convert list to array
-        return result.stream().mapToInt(Integer::intValue).toArray();
     }
 }
