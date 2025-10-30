@@ -1,29 +1,45 @@
 class Solution {
+
+    private int[][][] dp;
+
     public int removeBoxes(int[] boxes) {
         int n = boxes.length;
-        int[][][] memo = new int[n][n][n];
-        return removeBoxesSub(boxes, 0, n - 1, 0, memo);
+        dp = new int[n][n][n];
+        
+        // Initialize with -1 to indicate uncomputed states
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                for (int k = 0; k < n; k++)
+                    dp[i][j][k] = -1;
+
+        return solve(0, n - 1, 0, boxes);
     }
 
-    private int removeBoxesSub(int[] boxes, int i, int j, int k, int[][][] memo) {
-        if (i > j) return 0;
-        if (memo[i][j][k] > 0) return memo[i][j][k];
-    
-        int tmpi = i, tmpk = k;
-        while (i + 1 <= j && boxes[i + 1] == boxes[i]) {
-            i++;
+    private int solve(int l, int r, int k, int[] boxes) {
+        if (l > r) return 0;
+
+        if (dp[l][r][k] != -1) return dp[l][r][k];
+
+        int originalL = l, originalK = k;
+
+        // Combine boxes of the same color
+        while (l + 1 <= r && boxes[l] == boxes[l + 1]) {
+            l++;
             k++;
         }
-        
-        int res = (k + 1) * (k + 1) + removeBoxesSub(boxes, i + 1, j, 0, memo);
 
-        for (int m = i + 1; m <= j; m++) {
-            if (boxes[i] == boxes[m]) {
-                res = Math.max(res, removeBoxesSub(boxes, i + 1, m - 1, 0, memo) + removeBoxesSub(boxes, m, j, k + 1, memo));
+        // Case 1: Remove boxes[l] and contiguous same-colored boxes
+        int ans = (k + 1) * (k + 1) + solve(l + 1, r, 0, boxes);
+
+        // Case 2: Try merging with same colored boxes later
+        for (int m = l + 1; m <= r; m++) {
+            if (boxes[m] == boxes[l]) {
+                ans = Math.max(ans,
+                        solve(m, r, k + 1, boxes) + solve(l + 1, m - 1, 0, boxes));
             }
         }
 
-        memo[tmpi][j][tmpk] = res;
-        return res;
+        dp[originalL][r][originalK] = ans;
+        return ans;
     }
 }
