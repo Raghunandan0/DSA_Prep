@@ -13,6 +13,9 @@
  *     }
  * }
  */
+
+
+ /*
 class Solution {
     public List<List<String>> printTree(TreeNode root) {
         List<List<String>> res = new ArrayList<>();
@@ -61,6 +64,65 @@ class Solution {
             res.add(row);
         }
         return res;
+    }
+
+    private int height(TreeNode node){
+        if(node == null) return -1;
+        return Math.max(height(node.left), height(node.right)) + 1;
+    }
+}*/
+
+
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<List<String>> printTree(TreeNode root) {
+        List<List<String>> res = new ArrayList<>();
+        if(root == null) return res;
+
+        int h = height(root), m = h + 1, n = (1 << m) - 1;
+
+        // Initialize result matrix
+        String[][] temp = new String[m][n];
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                temp[i][j] = "";
+            }
+        }
+
+        // DFS Approach
+        dfs(root, 0, (n-1)/2, h, temp);
+
+        // Convert to required format
+        for(int i = 0; i < m; i++){
+            List<String> row = new ArrayList<>();
+            for(int j = 0; j < n; j++){
+                row.add(temp[i][j]);
+            }
+            res.add(row);
+        }
+        return res;
+    }
+
+    private void dfs(TreeNode node, int r, int c, int h, String[][] matrix){
+        if(node == null) return;
+        
+        matrix[r][c] = Integer.toString(node.val);
+        dfs(node.left, r+1, c - (1 << (h - r - 1)), h, matrix);
+        dfs(node.right, r+1, c + (1 << (h - r - 1)), h, matrix);
     }
 
     private int height(TreeNode node){
