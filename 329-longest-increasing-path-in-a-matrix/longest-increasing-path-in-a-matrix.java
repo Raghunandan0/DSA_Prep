@@ -1,40 +1,49 @@
 class Solution {
-    public int longestIncreasingPath(int[][] matrix) {
-        int m = matrix.length;
-        int n = matrix[0].length;
-        int[][] dp = new int[m][n];
-        for (int d[] : dp) Arrays.fill(d, -1);
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (dp[i][j] == -1) dfs(matrix, dp, m, n, i, j, -1);
+    int[][] directions = {{0, 1}, {0, -1}, {-1, 0}, {1, 0}}; // All the allowed four directions
+    
+    public int recursion(int[][] matrix, int i, int j, int n, int m, int[][] dp){
+        if(dp[i][j] != -1){ // if this case is already evaluated
+            return dp[i][j]; // directly return it
+        }
+
+        dp[i][j] = 1; // curr position is itself a path of length 1
+
+        for(int[] dir : directions){
+            // explore all the four directions
+            int x = i + dir[0];
+            int y = j + dir[1];
+
+            if(x >= 0 && x < n && y >= 0 && y < m && matrix[x][y] > matrix[i][j]){
+                // move iff, you are inside bound and the next position have element > curr element
+                dp[i][j] = Math.max(dp[i][j], 1 + recursion(matrix, x, y, n, m, dp)); // store the max path length
             }
         }
-        int max = Integer.MIN_VALUE;
-        for (int[] d : dp) {
-            for (int i : d) max = Math.max(i, max);
-        }
-        return max;
+        // Return the longest increasing path starting from cell (i, j)
+        return dp[i][j];
     }
 
-    public int dfs(
-        int[][] matrix,
-        int[][] dp,
-        int m,
-        int n,
-        int i,
-        int j,
-        int parent
-    ) {
-        if (
-            i >= m || j >= n || i < 0 || j < 0 || matrix[i][j] <= parent
-        ) return 0;
-        parent = matrix[i][j];
-        if (dp[i][j] != -1) return dp[i][j];
-        int left = dfs(matrix, dp, m, n, i, j - 1, parent);
-        int right = dfs(matrix, dp, m, n, i, j + 1, parent);
-        int bottom = dfs(matrix, dp, m, n, i + 1, j, parent);
-        int top = dfs(matrix, dp, m, n, i - 1, j, parent);
-        dp[i][j] = 1 + Math.max(Math.max(left, right), Math.max(top, bottom));
-        return dp[i][j];
+    public int longestIncreasingPath(int[][] matrix) {
+        // DP Approach using Memoization
+
+        if(matrix.length == 0) return 0; // edge case
+        int longestPath = 0; // our ans
+        int n = matrix.length;
+        int m = matrix[0].length;
+
+        int[][] dp = new int[n][m]; // for memoization
+
+        for(int i = 0; i < n; i++){
+            Arrays.fill(dp[i], -1);
+        }
+
+        // For each cell, compute the longest increasing path starting from it
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m; j++){
+                int path  = recursion(matrix, i, j, n, m, dp);
+                longestPath = Math.max(longestPath, path); // update the global longest path
+            }
+        }
+        // Return the overall longest increasing path length
+        return longestPath;
     }
 }
