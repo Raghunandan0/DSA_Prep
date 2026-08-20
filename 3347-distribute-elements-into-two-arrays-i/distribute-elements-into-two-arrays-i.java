@@ -1,21 +1,28 @@
 class Solution {
     public int[] resultArray(int[] nums) {
-        List<Integer> arr1 = new ArrayList<>();
-        List<Integer> arr2 = new ArrayList<>();
-        arr1.add(nums[0]);
-        arr2.add(nums[1]);
+        int[] nums1 = new int[nums.length];
+        int[] nums2 = new int[nums.length];
+        int n1 = 0;
+        int n2 = 0;
 
-        for (int i = 2; i < nums.length; i++) {
-            int last1 = arr1.get(arr1.size() - 1);
-            int last2 = arr2.get(arr2.size() - 1);
-            if (last1 > last2) arr1.add(nums[i]);
-            else arr2.add(nums[i]);
+        for (int i = 0; i < nums.length; i++) {
+            if (i == 0) {
+                nums1[n1++] = nums[i];
+            } else if (i == 1) {
+                nums2[n2++] = nums[i];
+            } else {
+                if (nums1[n1 - 1] > nums2[n2 - 1]) {
+                    nums1[n1++] = nums[i];
+                } else {
+                    nums2[n2++] = nums[i];
+                }
+            }
         }
 
-        int[] res = new int[nums.length];
-        int idx = 0;
-        for (int x : arr1) res[idx++] = x;
-        for (int x : arr2) res[idx++] = x;
-        return res;
+        for (int i = 0; i < n2; i++) {
+            nums1[n1++] = nums2[i];
+        }
+
+        return nums1;
     }
 }
