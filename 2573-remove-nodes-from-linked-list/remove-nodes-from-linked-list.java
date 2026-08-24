@@ -1,23 +1,15 @@
 class Solution {
     public ListNode removeNodes(ListNode head) {
-        ListNode cur = head;
-        Stack<ListNode> stack = new Stack<>();
-        
-        while (cur != null) {
-            while (!stack.isEmpty() && stack.peek().val < cur.val) {
-                stack.pop();
-            }
-            stack.push(cur);
-            cur = cur.next;
+        if (head == null) {
+            return null;
         }
-        
-        ListNode nxt = null;
-        while (!stack.isEmpty()) {
-            cur = stack.pop();
-            cur.next = nxt;
-            nxt = cur;
+        ListNode node = head;
+        ListNode nxtGreater = removeNodes(node.next);
+
+        node.next = nxtGreater;
+        if (nxtGreater == null || node.val >= nxtGreater.val) {
+            return node;
         }
-        
-        return cur;
+        return nxtGreater;
     }
 }
