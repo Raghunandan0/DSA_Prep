@@ -3,96 +3,107 @@ class Solution {
         int m = classroom.length;
         int n = classroom[0].length();
 
+        int sr = -1, sc = -1;
+        int cnt = 0;
+
+        // Give each litter an ID for bitmask
         int[][] id = new int[m][n];
+        for(int[] row : id) Arrays.fill(row, -1);
 
-        for (int r = 0; r < m; r++) {
-            java.util.Arrays.fill(id[r], -1);
-        }
-
-        int k = 0;
-        int sr = 0, sc = 0;
-
-        for (int r = 0; r < m; r++) {
-            for (int c = 0; c < n; c++) {
-                if (classroom[r].charAt(c) == 'S') {
-                    sr = r;
-                    sc = c;
-                } else if (classroom[r].charAt(c) == 'L') {
-                    id[r][c] = k++;
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                if(classroom[i].charAt(j) == 'S'){
+                    sr = i;
+                    sc = j;
+                }
+                if(classroom[i].charAt(j) == 'L'){
+                    id[i][j] = cnt++;
                 }
             }
         }
 
-        if (k == 0) return 0;
+        int masks = 1 << cnt;
+        int fullMask = masks - 1;
 
-        int totalMask = (1 << k) - 1;
-
-        int[][][] best = new int[m][n][1 << k];
-
-        for (int r = 0; r < m; r++) {
-            for (int c = 0; c < n; c++) {
-                java.util.Arrays.fill(best[r][c], -1);
-            }
-        }
+        // best[r][c][mask] = max energy reached at this state
+        int[][][] best = new int[m][n][masks];
+        for(int[][] layer : best)
+            for(int[] row : layer)
+                Arrays.fill(row, -1);
 
         class State {
-            int r, c, mask, e, moves;
+            int r, c, mask, en, dist;
 
-            State(int r, int c, int mask, int e, int moves) {
+            State(int r, int c, int mask, int en, int dist){
                 this.r = r;
                 this.c = c;
                 this.mask = mask;
-                this.e = e;
-                this.moves = moves;
+                this.en = en;
+                this.dist = dist;
             }
         }
 
-        java.util.ArrayDeque<State> queue = new java.util.ArrayDeque<>();
+        Queue<State> q = new LinkedList<>();
 
+        q.add(new State(sr, sc, 0, energy, 0));
         best[sr][sc][0] = energy;
-        queue.offer(new State(sr, sc, 0, energy, 0));
 
         int[] dr = {-1, 1, 0, 0};
         int[] dc = {0, 0, -1, 1};
 
-        while (!queue.isEmpty()) {
-            State cur = queue.poll();
+        while(!q.isEmpty()){
+            State cur = q.poll();
+            int r = cur.r;
+            int c = cur.c;
+            int mask = cur.mask;
+            int en = cur.en;
+            int dist = cur.dist;
 
-            for (int d = 0; d < 4; d++) {
-                int nr = cur.r + dr[d];
-                int nc = cur.c + dc[d];
+            // All litter collected
+            if(mask == fullMask){
+                return dist;
+            }
 
-                if (nr < 0 || nr >= m || nc < 0 || nc >= n)
+            // No energy, cannot move
+            if(en == 0){
+                continue;
+            }
+
+            for(int d = 0; d < 4; d++){
+                int nr = r + dr[d];
+                int nc = c + dc[d];
+
+                // Outside grid
+                if(nr < 0 || nr >= m || nc < 0 || nc >= n){
                     continue;
-
-                if (classroom[nr].charAt(nc) == 'X')
-                    continue;
-
-                int ne = cur.e - 1;
-
-                if (ne < 0)
-                    continue;
-
-                int nmask = cur.mask;
-
-                if (classroom[nr].charAt(nc) == 'R') {
-                    ne = energy;
                 }
 
-                if (classroom[nr].charAt(nc) == 'L') {
-                    nmask |= (1 << id[nr][nc]);
-                }
-
-                if (nmask == totalMask) {
-                    return cur.moves + 1;
-                }
-
-                if (ne <= best[nr][nc][nmask])
+                // Obstacle
+                if(classroom[nr].charAt(nc) == 'X'){
                     continue;
+                }
 
-                best[nr][nc][nmask] = ne;
+                int newEn = en - 1;
+                int newMask = mask;
 
-                queue.offer(new State(nr, nc, nmask, ne, cur.moves + 1));
+                // Collect litter
+                if(classroom[nr].charAt(nc) == 'L'){
+                    newMask |= (1 << id[nr][nc]);
+                }
+
+                // Recharge
+                if(classroom[nr].charAt(nc) == 'R'){
+                    newEn = energy;
+                }
+
+                // Already reached with more energy
+                if(best[nr][nc][newMask] >= newEn){
+                    continue;
+                }
+
+                best[nr][nc][newMask] = newEn;
+
+                q.add(new State(nr, nc, newMask, newEn, dist + 1));
             }
         }
 
